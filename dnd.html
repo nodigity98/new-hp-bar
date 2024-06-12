@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adjustable Health Bars</title>
     <style>
+        body {
+            background-color: #00FF00; /* Green background */
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .characters-container {
+            display: flex;
+            justify-content: flex-end; /* Align characters to the right */
+        }
         .character {
             display: flex;
             align-items: center;
@@ -12,8 +22,8 @@
         }
         .health-bar-container {
             position: relative;
-            width: 200px; /* Adjust the width as needed */
-            height: 10px; /* Half the height of the previous 20px */
+            width: 200px;
+            height: 20px; /* Increased height for better visibility */
             background-color: #ddd;
             margin-right: 20px;
         }
@@ -28,7 +38,8 @@
             text-align: center;
             color: white;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 12px; /* Increased font size for better visibility */
+            line-height: 20px; /* Center the text vertically */
         }
     </style>
 </head>
@@ -36,7 +47,7 @@
 
 <h1>Adjustable Health Bars</h1>
 
-<div id="characters"></div>
+<div class="characters-container" id="characters"></div>
 
 <script>
     const characters = [
