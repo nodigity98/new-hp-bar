@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustable Health Bars</title>
+    <style>
+        body {
+            background-color: #00FF00; /* Green background */
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .character {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Distribute items evenly */
+            margin-bottom: 20px;
+        }
+        .character-details {
+            flex: 1; /* Takes up remaining space */
+        }
+        .health-bar-container {
+            position: relative;
+            width: 200px;
+            height: 20px;
+            background-color: #ddd;
+        }
+        .health-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: red;
+        }
+        .health-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 20px;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Adjustable Health Bars</h1>
+
+<div id="characters"></div>
+
+<script>
+    const characters = [
+        { name: 'Character 1', maxHp: 50, currentHp: 50 },
+        { name: 'Character 2', maxHp: 60, currentHp: 60 },
+        { name: 'Character 3', maxHp: 70, currentHp: 70 },
+        { name: 'Character 4', maxHp: 80, currentHp: 80 },
+        { name: 'Character 5', maxHp: 90, currentHp: 90 },
+        { name: 'Character 6', maxHp: 100, currentHp: 100 }
+    ];
+
+    function updateHealthBar(character, amount) {
+        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount));
+        const healthBar = document.getElementById(`health-bar-${character.name}`);
+        const healthText = document.getElementById(`health-text-${character.name}`);
+        healthBar.style.width = `${(character.currentHp / character.maxHp) * 100}%`;
+        healthText.innerText = `${character.currentHp}/${character.maxHp}`;
+    }
+
+    function renderCharacters() {
+        const container = document.getElementById('characters');
+        characters.forEach(character => {
+            const characterDiv = document.createElement('div');
+            characterDiv.classList.add('character');
+            characterDiv.innerHTML = `
+                <div class="character-details">
+                    <h2>${character.name}</h2>
+                    <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
+                    <div>
+                        <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
+                        <button onclick="adjustHealth('${character.name}', 1)">Add</button>
+                        <button onclick="adjustHealth('${character.name}', -1)">Subtract</button>
+                    </div>
+                </div>
+                <div class="health-bar-container">
+                    <div id="health-bar-${character.name}" class="health-bar"></div>
+                    <div id="health-text-${character.name}" class="health-text">${character.currentHp}/${character.maxHp}</div>
+                </div>
+            `;
+            container.appendChild(characterDiv);
+
+            document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
+                character.maxHp = parseInt(e.target.value, 10);
+                updateHealthBar(character, 0);
+            });
+        });
+    }
+
+    function adjustHealth(characterName, multiplier) {
+        const character = characters.find(char => char.name === characterName);
+        const amountInput = document.getElementById(`adjust-amount-${characterName}`);
+        const amount = parseInt(amountInput.value, 10) * multiplier;
+        if (!isNaN(amount)) {
+            updateHealthBar(character, amount);
+        }
+    }
+
+    renderCharacters();
+</script>
+
+</body>
+</html>
