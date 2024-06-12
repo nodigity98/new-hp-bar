@@ -1,0 +1,25 @@
+function createHealthBar(initialValue, maxCharacters) {
+  let currentValue = initialValue;
+  let healthBar = document.createElement('div');
+  healthBar.style.width = `${currentValue}%`;
+  healthBar.style.height = '20px';
+  healthBar.style.backgroundColor = 'green';
+  healthBar.style.marginBottom = '10px';
+  document.body.appendChild(healthBar);
+
+  function updateHealthBar(value) {
+    currentValue += value;
+    if (currentValue > maxCharacters) {
+      currentValue = maxCharacters;
+    } else if (currentValue < 0) {
+      currentValue = 0;
+    }
+    healthBar.style.width = `${currentValue}%`;
+  }
+
+  return { updateHealthBar };
+}
+
+// Usage:
+const healthBar = createHealthBar(50, 100); // Initial value of 50, max of 100
+healthBar.updateHealthBar(-10); // Subtract 10 from the current value
