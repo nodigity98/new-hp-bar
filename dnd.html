@@ -1,82 +1,86 @@
-import tkinter as tk
-from tkinter import messagebox
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustable Health Bars</title>
+    <style>
+        .character {
+            margin-bottom: 20px;
+        }
+        .health-bar-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+        }
+        .health-bar {
+            position: absolute;
+            height: 100%;
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
 
-class HealthBarApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Adjustable Health Bars")
+<h1>Adjustable Health Bars</h1>
 
-        self.characters = []
+<div id="characters"></div>
 
-        for i in range(6):
-            character_frame = tk.Frame(root)
-            character_frame.pack(pady=5)
+<script>
+    const characters = [
+        { name: 'Character 1', maxHp: 50, currentHp: 50 },
+        { name: 'Character 2', maxHp: 60, currentHp: 60 },
+        { name: 'Character 3', maxHp: 70, currentHp: 70 },
+        { name: 'Character 4', maxHp: 80, currentHp: 80 },
+        { name: 'Character 5', maxHp: 90, currentHp: 90 },
+        { name: 'Character 6', maxHp: 100, currentHp: 100 }
+    ];
 
-            label = tk.Label(character_frame, text=f"Character {i+1}")
-            label.pack(side=tk.LEFT)
+    function updateHealthBar(character, amount) {
+        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount));
+        document.getElementById(`current-hp-${character.name}`).innerText = `${character.currentHp}/${character.maxHp}`;
+        document.getElementById(`health-bar-${character.name}`).style.width = `${(character.currentHp / character.maxHp) * 100}%`;
+    }
 
-            self.create_character_ui(character_frame, i)
+    function renderCharacters() {
+        const container = document.getElementById('characters');
+        characters.forEach(character => {
+            const characterDiv = document.createElement('div');
+            characterDiv.classList.add('character');
+            characterDiv.innerHTML = `
+                <h2>${character.name}</h2>
+                <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
+                <div>Current HP: <span id="current-hp-${character.name}">${character.currentHp}/${character.maxHp}</span></div>
+                <div class="health-bar-container">
+                    <div id="health-bar-${character.name}" class="health-bar" style="width: ${(character.currentHp / character.maxHp) * 100}%"></div>
+                </div>
+                <div>
+                    <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
+                    <button onclick="adjustHealth('${character.name}', 1)">Add</button>
+                    <button onclick="adjustHealth('${character.name}', -1)">Subtract</button>
+                </div>
+            `;
+            container.appendChild(characterDiv);
 
-    def create_character_ui(self, frame, index):
-        max_hp_label = tk.Label(frame, text="Max HP:")
-        max_hp_label.pack(side=tk.LEFT)
+            document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
+                character.maxHp = parseInt(e.target.value, 10);
+                updateHealthBar(character, 0);
+            });
+        });
+    }
 
-        max_hp_entry = tk.Entry(frame, width=5)
-        max_hp_entry.pack(side=tk.LEFT)
+    function adjustHealth(characterName, multiplier) {
+        const character = characters.find(char => char.name === characterName);
+        const amountInput = document.getElementById(`adjust-amount-${characterName}`);
+        const amount = parseInt(amountInput.value, 10) * multiplier;
+        if (!isNaN(amount)) {
+            updateHealthBar(character, amount);
+        }
+    }
 
-        current_hp_label = tk.Label(frame, text="Current HP:")
-        current_hp_label.pack(side=tk.LEFT)
+    renderCharacters();
+</script>
 
-        current_hp_entry = tk.Entry(frame, width=5)
-        current_hp_entry.pack(side=tk.LEFT)
-
-        hp_display = tk.Label(frame, text="0/0")
-        hp_display.pack(side=tk.LEFT, padx=10)
-
-        def update_hp_display():
-            try:
-                max_hp = int(max_hp_entry.get())
-                current_hp = int(current_hp_entry.get())
-                hp_display.config(text=f"{current_hp}/{max_hp}")
-            except ValueError:
-                messagebox.showerror("Invalid input", "Please enter valid integers for HP values.")
-
-        def add_hp():
-            try:
-                current_hp = int(current_hp_entry.get())
-                current_hp += int(add_subtract_entry.get())
-                current_hp_entry.delete(0, tk.END)
-                current_hp_entry.insert(0, str(current_hp))
-                update_hp_display()
-            except ValueError:
-                messagebox.showerror("Invalid input", "Please enter a valid integer to add/subtract.")
-
-        def subtract_hp():
-            try:
-                current_hp = int(current_hp_entry.get())
-                current_hp -= int(add_subtract_entry.get())
-                current_hp_entry.delete(0, tk.END)
-                current_hp_entry.insert(0, str(current_hp))
-                update_hp_display()
-            except ValueError:
-                messagebox.showerror("Invalid input", "Please enter a valid integer to add/subtract.")
-
-        add_subtract_entry = tk.Entry(frame, width=5)
-        add_subtract_entry.pack(side=tk.LEFT, padx=5)
-
-        add_button = tk.Button(frame, text="Add", command=add_hp)
-        add_button.pack(side=tk.LEFT, padx=5)
-
-        subtract_button = tk.Button(frame, text="Subtract", command=subtract_hp)
-        subtract_button.pack(side=tk.LEFT, padx=5)
-
-        self.characters.append({
-            "max_hp_entry": max_hp_entry,
-            "current_hp_entry": current_hp_entry,
-            "hp_display": hp_display
-        })
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = HealthBarApp(root)
-    root.mainloop()
+</body>
+</html>
