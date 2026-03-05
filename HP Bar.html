@@ -1,49 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adjustable Health Bars</title>
-    <style>
-        body {
-            background-color: #00FF00; /* Green background */
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-        }
-        .character {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* Distribute items evenly */
-            margin-bottom: 20px;
-        }
-        .character-details {
-            flex: 1; /* Takes up remaining space */
-        }
-        .health-bar-container {
-            width: 200px;
-            height: 20px;
-            background-color: #ddd;
-            position: relative;
-        }
-        .health-bar {
-            height: 100%;
-            background-color: red; /* Set health bar color to red */
-            transition: width 0.3s ease-in-out; /* Smooth transition animation */
-        }
-        .health-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            line-height: 20px;
-            top: 0;
-            left: 0;
-            pointer-events: none; /* Ensure text doesn't interfere with input */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adjustable Health Bars</title>
+  <style>
+    body {
+      background-color: #00FF00; /* Green background */
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .character {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Distribute items evenly */
+      margin-bottom: 20px;
+    }
+    .character-details {
+      flex: 1; /* Takes up remaining space */
+    }
+    .health-bar-container {
+      width: 200px;
+      height: 20px;
+      background-color: #ddd;
+      position: relative;
+    }
+    .health-bar {
+      height: 100%;
+      background-color: red; /* Set health bar color to red */
+      transition: width 0.3s ease-in-out; /* Smooth transition animation */
+    }
+    .health-text {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 20px;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* Ensure text doesn't interfere with input */
+    }
+
+    /* Title + universal buttons beside it */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0; /* ✅ space above and below the header block */
+    }
+    .header h1 {
+      margin: 0; /* keep buttons aligned with the title */
+    }
+
+    /* remove the space ONLY between Max HP row and Amount row */
+    .amount-row {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -53,7 +69,7 @@
     <button onclick="adjustAll(-1)">Subtract</button>
   </div>
 
-<div id="characters"></div>
+  <div id="characters"></div>
 
 <script>
     const characters = [
