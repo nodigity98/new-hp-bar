@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adjustable Health Bars</title>
   <style>
     body {
@@ -44,18 +44,7 @@
       pointer-events: none; /* Ensure text doesn't interfere with input */
     }
 
-    /* Title + universal buttons beside it */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 20px 0; /* ✅ space above and below the header block */
-    }
-    .header h1 {
-      margin: 0; /* keep buttons aligned with the title */
-    }
-
-    /* remove the space ONLY between Max HP row and Amount row */
+    /* Only remove space between Max HP row and Amount row */
     .amount-row {
       margin-top: 0;
     }
@@ -63,11 +52,12 @@
 </head>
 <body>
 
-  <div class="header">
-    <h1>Adjustable Health Bars</h1>
+  <!-- Keeps original h1 spacing exactly the same, buttons sit next to it -->
+  <h1>
+    Adjustable Health Bars
     <button onclick="adjustAll(1)">Add</button>
     <button onclick="adjustAll(-1)">Subtract</button>
-  </div>
+  </h1>
 
   <div id="characters"></div>
 
@@ -130,6 +120,7 @@
       characters.forEach(character => {
         const amountInput = document.getElementById(`adjust-amount-${character.name}`);
         const amount = parseInt(amountInput.value, 10);
+
         if (isNaN(amount)) return;
 
         character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + (amount * multiplier)));
