@@ -11,6 +11,18 @@
             padding: 20px;
             font-family: Arial, sans-serif;
         }
+
+        /* Header with buttons next to title */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+
         .character {
             display: flex;
             align-items: center;
@@ -20,6 +32,17 @@
         .character-details {
             flex: 1; /* Takes up remaining space */
         }
+
+        /* Tighten spacing so Max HP and Amount sit right together */
+        .character-details h2 {
+            margin: 0 0 6px 0;
+        }
+        .character-details .field {
+            margin: 0;              /* removes that annoying gap */
+            padding: 0;
+            line-height: 1.2;
+        }
+
         .health-bar-container {
             width: 200px;
             height: 20px;
@@ -43,26 +66,18 @@
             left: 0;
             pointer-events: none; /* Ensure text doesn't interfere with input */
         }
-
-        .universal-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
 
-<h1>Adjustable Health Bars</h1>
-
-<div id="characters"></div>
-
-<!-- One universal set of buttons -->
-<div class="universal-controls">
+<div class="header">
+    <h1>Adjustable Health Bars</h1>
+    <!-- Universal buttons next to title -->
     <button onclick="adjustAll(1)">Add</button>
     <button onclick="adjustAll(-1)">Subtract</button>
 </div>
+
+<div id="characters"></div>
 
 <script>
     const characters = [
@@ -82,32 +97,6 @@
         healthText.innerText = `${character.currentHp}/${character.maxHp}`;
     }
 
-    function clampHp(character) {
-        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp));
-    }
-
-    function getCharacterAmount(characterName) {
-        const input = document.getElementById(`amount-${characterName}`);
-        if (!input) return null;
-        const val = parseInt(input.value, 10);
-        if (isNaN(val)) return null;
-        return val;
-    }
-
-    // UNIVERSAL: applies to EVERY character using THEIR own amount input
-    function adjustAll(multiplier) {
-        characters.forEach(character => {
-            const amount = getCharacterAmount(character.name);
-
-            // Ignore blanks / invalid inputs
-            if (amount === null) return;
-
-            character.currentHp += amount * multiplier;
-            clampHp(character);
-            updateHealthBar(character);
-        });
-    }
-
     function renderCharacters() {
         const container = document.getElementById('characters');
         container.innerHTML = '';
@@ -119,10 +108,11 @@
                 <div class="character-details">
                     <h2>${character.name}</h2>
 
-                    <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
-
-                    <div style="margin-top: 6px;">
-                        Amount: <input type="number" id="amount-${character.name}" placeholder="Amount" />
+                    <div class="field">Max HP:
+                        <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" />
+                    </div>
+                    <div class="field">
+                        <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
                     </div>
                 </div>
 
@@ -133,26 +123,45 @@
             `;
             container.appendChild(characterDiv);
 
-            // Max HP change
+            // Max HP edits
             document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
                 character.maxHp = parseInt(e.target.value, 10);
-                if (isNaN(character.maxHp) || character.maxHp < 0) character.maxHp = 0;
-                clampHp(character);
+                // clamp current HP if max HP is lowered
+                character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp));
                 updateHealthBar(character);
             });
 
-            // Keep amount clean (digits only)
-            const amtInput = document.getElementById(`amount-${character.name}`);
-            amtInput.addEventListener('input', () => {
-                amtInput.value = amtInput.value.replace(/[^0-9]/g, '');
+            // Amount input: digits only
+            const amountInput = document.getElementById(`adjust-amount-${character.name}`);
+            amountInput.addEventListener('input', () => {
+                amountInput.value = amountInput.value.replace(/[^0-9]/g, '');
             });
 
             updateHealthBar(character);
         });
     }
 
+    // UNIVERSAL buttons apply to ALL characters using EACH character's amount input
+    function adjustAll(multiplier) {
+        characters.forEach(character => {
+            const amountInput = document.getElementById(`adjust-amount-${character.name}`);
+            const raw = parseInt(amountInput.value, 10);
+
+            if (isNaN(raw)) return; // ignore blanks/invalid
+
+            const delta = raw * multiplier;
+            character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + delta));
+            updateHealthBar(character);
+
+            // Match old behavior vibe: clear the amount after applying
+            amountInput.value = '';
+        });
+    }
+
     renderCharacters();
 </script>
 
+</body>
+</html>
 </body>
 </html>
