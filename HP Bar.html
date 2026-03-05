@@ -44,8 +44,11 @@
             pointer-events: none; /* Ensure text doesn't interfere with input */
         }
 
-        .global-amount {
-            margin-top: 20px;
+        .universal-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -55,9 +58,10 @@
 
 <div id="characters"></div>
 
-<!-- Global amount input UNDER all characters -->
-<div class="global-amount">
-    <input type="number" id="global-adjust-amount" placeholder="Amount" />
+<!-- One universal set of buttons -->
+<div class="universal-controls">
+    <button onclick="adjustAll(1)">Add</button>
+    <button onclick="adjustAll(-1)">Subtract</button>
 </div>
 
 <script>
@@ -78,20 +82,50 @@
         healthText.innerText = `${character.currentHp}/${character.maxHp}`;
     }
 
+    function clampHp(character) {
+        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp));
+    }
+
+    function getCharacterAmount(characterName) {
+        const input = document.getElementById(`amount-${characterName}`);
+        if (!input) return null;
+        const val = parseInt(input.value, 10);
+        if (isNaN(val)) return null;
+        return val;
+    }
+
+    // UNIVERSAL: applies to EVERY character using THEIR own amount input
+    function adjustAll(multiplier) {
+        characters.forEach(character => {
+            const amount = getCharacterAmount(character.name);
+
+            // Ignore blanks / invalid inputs
+            if (amount === null) return;
+
+            character.currentHp += amount * multiplier;
+            clampHp(character);
+            updateHealthBar(character);
+        });
+    }
+
     function renderCharacters() {
         const container = document.getElementById('characters');
+        container.innerHTML = '';
+
         characters.forEach(character => {
             const characterDiv = document.createElement('div');
             characterDiv.classList.add('character');
             characterDiv.innerHTML = `
                 <div class="character-details">
                     <h2>${character.name}</h2>
+
                     <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
-                    <div>
-                        <button onclick="adjustHealth('${character.name}', 1)">Add</button>
-                        <button onclick="adjustHealth('${character.name}', -1)">Subtract</button>
+
+                    <div style="margin-top: 6px;">
+                        Amount: <input type="number" id="amount-${character.name}" placeholder="Amount" />
                     </div>
                 </div>
+
                 <div class="health-bar-container">
                     <div id="health-bar-${character.name}" class="health-bar"></div>
                     <div id="health-text-${character.name}" class="health-text">${character.currentHp}/${character.maxHp}</div>
@@ -99,33 +133,23 @@
             `;
             container.appendChild(characterDiv);
 
+            // Max HP change
             document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
                 character.maxHp = parseInt(e.target.value, 10);
+                if (isNaN(character.maxHp) || character.maxHp < 0) character.maxHp = 0;
+                clampHp(character);
                 updateHealthBar(character);
             });
+
+            // Keep amount clean (digits only)
+            const amtInput = document.getElementById(`amount-${character.name}`);
+            amtInput.addEventListener('input', () => {
+                amtInput.value = amtInput.value.replace(/[^0-9]/g, '');
+            });
+
+            updateHealthBar(character);
         });
     }
-
-    function adjustHealth(characterName, multiplier) {
-        const character = characters.find(char => char.name === characterName);
-
-        // UNIVERSAL amount input
-        const amountInput = document.getElementById('global-adjust-amount');
-        const baseAmount = parseInt(amountInput.value, 10);
-
-        if (!isNaN(baseAmount)) {
-            const amount = baseAmount * multiplier;
-            character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount));
-            updateHealthBar(character);
-            // don't clear the box (so you can click multiple people)
-        }
-    }
-
-    // Keep the global amount input numeric-only (optional, but prevents weird values)
-    const globalAmountInput = document.getElementById('global-adjust-amount');
-    globalAmountInput.addEventListener('input', () => {
-        globalAmountInput.value = globalAmountInput.value.replace(/[^0-9]/g, '');
-    });
 
     renderCharacters();
 </script>
