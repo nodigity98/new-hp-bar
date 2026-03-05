@@ -1,128 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adjustable Health Bars</title>
-    <style>
-        body {
-            background-color: #00FF00; /* Green background */
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-        }
-        .character {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; /* Distribute items evenly */
-            margin-bottom: 20px;
-        }
-        .character-details {
-            flex: 1; /* Takes up remaining space */
-        }
-        .health-bar-container {
-            position: relative;
-            width: 200px;
-            height: 20px;
-            background-color: #ddd;
-        }
-        .health-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: red; /* Set health bar color to red */
-        }
-        .health-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            line-height: 20px;
-            top: 0;
-            left: 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adjustable Health Bars</title>
+  <style>
+    body {
+      background-color: #00FF00; /* Green background */
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .character {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Distribute items evenly */
+      margin-bottom: 20px;
+    }
+    .character-details {
+      flex: 1; /* Takes up remaining space */
+    }
+    .health-bar-container {
+      width: 200px;
+      height: 20px;
+      background-color: #ddd;
+      position: relative;
+    }
+    .health-bar {
+      height: 100%;
+      background-color: red; /* Set health bar color to red */
+      transition: width 0.3s ease-in-out; /* Smooth transition animation */
+    }
+    .health-text {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 20px;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* Ensure text doesn't interfere with input */
+    }
+
+    /* Title + universal buttons beside it */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0; /* ✅ space above and below the header block */
+    }
+    .header h1 {
+      margin: 0; /* keep buttons aligned with the title */
+    }
+
+    /* remove the space ONLY between Max HP row and Amount row */
+    .amount-row {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Adjustable Health Bars</h1>
+  <div class="header">
+    <h1>Adjustable Health Bars</h1>
+    <button onclick="adjustAll(1)">Add</button>
+    <button onclick="adjustAll(-1)">Subtract</button>
+  </div>
 
-<div id="characters"></div>
+  <div id="characters"></div>
 
-<script>
+  <script>
     const characters = [
-        { name: 'Character 1', maxHp: 50, currentHp: 50 },
-        { name: 'Character 2', maxHp: 60, currentHp: 60 },
-        { name: 'Character 3', maxHp: 70, currentHp: 70 },
-        { name: 'Character 4', maxHp: 80, currentHp: 80 },
-        { name: 'Character 5', maxHp: 90, currentHp: 90 },
-        { name: 'Character 6', maxHp: 100, currentHp: 100 }
+      { name: 'Starzin', maxHp: 51, currentHp: 51 },
+      { name: 'Sips', maxHp: 70, currentHp: 70 },
+      { name: 'Brutus', maxHp: 51, currentHp: 51 },
+      { name: 'Zephyrin', maxHp: 63, currentHp: 63 },
+      { name: 'Ship', maxHp: 234, currentHp: 234 },
+      { name: 'Ship 2', maxHp: 234, currentHp: 234 }
     ];
 
-    function updateHealthBar(character, amount) {
-        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount));
-        const healthBar = document.getElementById(`health-bar-${character.name}`);
-        const healthText = document.getElementById(`health-text-${character.name}`);
-        const percentage = (character.currentHp / character.maxHp) * 100;
-        healthBar.style.width = `${percentage}%`;
-        healthText.innerText = `${character.currentHp}/${character.maxHp}`;
-        if (percentage <= 50) {
-            healthBar.style.backgroundColor = 'red'; /* Set health bar color to red */
-        } else {
-            healthBar.style.backgroundColor = 'green'; /* Set health bar color to green */
-        }
+    function updateHealthBar(character) {
+      const healthBar = document.getElementById(`health-bar-${character.name}`);
+      const healthText = document.getElementById(`health-text-${character.name}`);
+      const percentage = (character.currentHp / character.maxHp) * 100;
+      healthBar.style.width = `${percentage}%`;
+      healthText.innerText = `${character.currentHp}/${character.maxHp}`;
     }
 
     function renderCharacters() {
-        const container = document.getElementById('characters');
-        characters.forEach(character => {
-            const characterDiv = document.createElement('div');
-            characterDiv.classList.add('character');
-            characterDiv.innerHTML = `
-                <div class="character-details">
-                    <h2>${character.name}</h2>
-                    <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
-                    <div>
-                        <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
-                        <button onclick="adjustHealth('${character.name}', 1)">Add</button>
-                        <button onclick="adjustHealth('${character.name}', -1)">Subtract</button>
-                    </div>
-                </div>
-                <div class="health-bar-container">
-                    <div id="health-bar-${character.name}" class="health-bar" style="background-color: red;"></div>
-                    <div id="health-text-${character.name}" class="health-text">${character.currentHp}/${character.maxHp}</div>
-                </div>
-            `;
-            container.appendChild(characterDiv);
+      const container = document.getElementById('characters');
+      container.innerHTML = '';
 
-            document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
-                character.maxHp = parseInt(e.target.value, 10);
-                updateHealthBar(character, 0);
-            });
+      characters.forEach(character => {
+        const characterDiv = document.createElement('div');
+        characterDiv.classList.add('character');
+        characterDiv.innerHTML = `
+          <div class="character-details">
+            <h2>${character.name}</h2>
+            <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
+            <div class="amount-row">
+              <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
+            </div>
+          </div>
+          <div class="health-bar-container">
+            <div id="health-bar-${character.name}" class="health-bar"></div>
+            <div id="health-text-${character.name}" class="health-text">${character.currentHp}/${character.maxHp}</div>
+          </div>
+        `;
+        container.appendChild(characterDiv);
 
-            const amountInput = document.getElementById(`adjust-amount-${character.name}`);
-            amountInput.addEventListener('input', () => {
-                // Allow only numbers and backspace
-                amountInput.value = amountInput.value.replace(/[^0-9]/g, '');
-            });
+        document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
+          character.maxHp = parseInt(e.target.value, 10);
+          character.currentHp = Math.min(character.currentHp, character.maxHp);
+          updateHealthBar(character);
         });
+
+        const amountInput = document.getElementById(`adjust-amount-${character.name}`);
+        amountInput.addEventListener('input', () => {
+          amountInput.value = amountInput.value.replace(/[^0-9]/g, '');
+        });
+
+        updateHealthBar(character);
+      });
     }
 
-    function adjustHealth(characterName, multiplier) {
-        const character = characters.find(char => char.name === characterName);
-        const amountInput = document.getElementById(`adjust-amount-${characterName}`);
-        const amount = parseInt(amountInput.value, 10) * multiplier;
-        if (!isNaN(amount)) {
-            updateHealthBar(character, amount);
-            amountInput.value = ''; // Clear the input after adjusting health
-        }
+    function adjustAll(multiplier) {
+      characters.forEach(character => {
+        const amountInput = document.getElementById(`adjust-amount-${character.name}`);
+        const amount = parseInt(amountInput.value, 10);
+        if (isNaN(amount)) return;
+
+        character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + (amount * multiplier)));
+        updateHealthBar(character);
+
+        amountInput.value = '';
+      });
     }
 
     renderCharacters();
-</script>
+  </script>
 
 </body>
 </html>
