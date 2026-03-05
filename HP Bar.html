@@ -43,11 +43,31 @@
             left: 0;
             pointer-events: none; /* Ensure text doesn't interfere with input */
         }
+
+        /* Small addition: makes the universal controls look neat, but doesn't change your layout much */
+        .global-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
 
 <h1>Adjustable Health Bars</h1>
+
+<!-- Universal controls -->
+<div class="global-controls">
+    <label for="character-select"><strong>Target:</strong></label>
+    <select id="character-select"></select>
+
+    <input type="number" id="global-adjust-amount" placeholder="Amount" />
+
+    <button onclick="adjustSelected(1)">Add</button>
+    <button onclick="adjustSelected(-1)">Subtract</button>
+</div>
 
 <div id="characters"></div>
 
@@ -69,8 +89,15 @@
         healthText.innerText = `${character.currentHp}/${character.maxHp}`;
     }
 
+    function renderCharacterSelect() {
+        const select = document.getElementById('character-select');
+        select.innerHTML = characters.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
+
     function renderCharacters() {
         const container = document.getElementById('characters');
+        container.innerHTML = '';
+
         characters.forEach(character => {
             const characterDiv = document.createElement('div');
             characterDiv.classList.add('character');
@@ -78,11 +105,6 @@
                 <div class="character-details">
                     <h2>${character.name}</h2>
                     <div>Max HP: <input type="number" id="max-hp-${character.name}" value="${character.maxHp}" /></div>
-                    <div>
-                        <input type="number" id="adjust-amount-${character.name}" placeholder="Amount" />
-                        <button onclick="adjustHealth('${character.name}', 1)">Add</button>
-                        <button onclick="adjustHealth('${character.name}', -1)">Subtract</button>
-                    </div>
                 </div>
                 <div class="health-bar-container">
                     <div id="health-bar-${character.name}" class="health-bar"></div>
@@ -93,28 +115,40 @@
 
             document.getElementById(`max-hp-${character.name}`).addEventListener('change', (e) => {
                 character.maxHp = parseInt(e.target.value, 10);
+                // Clamp current HP if max HP is lowered below it
+                character.currentHp = Math.min(character.currentHp, character.maxHp);
                 updateHealthBar(character);
             });
 
-            const amountInput = document.getElementById(`adjust-amount-${character.name}`);
-            amountInput.addEventListener('input', () => {
-                // Allow only numbers and backspace
-                amountInput.value = amountInput.value.replace(/[^0-9]/g, '');
-            });
+            updateHealthBar(character);
         });
     }
 
+    // Keep your adjust logic, just make it use the universal controls
     function adjustHealth(characterName, multiplier) {
         const character = characters.find(char => char.name === characterName);
-        const amountInput = document.getElementById(`adjust-amount-${characterName}`);
+        const amountInput = document.getElementById('global-adjust-amount');
         const amount = parseInt(amountInput.value, 10) * multiplier;
+
         if (!isNaN(amount)) {
             character.currentHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount));
             updateHealthBar(character);
-            amountInput.value = ''; // Clear the input after adjusting health
+            amountInput.value = ''; // Clear after adjusting (same behavior you had)
         }
     }
 
+    function adjustSelected(multiplier) {
+        const selectedName = document.getElementById('character-select').value;
+        adjustHealth(selectedName, multiplier);
+    }
+
+    // Allow only numbers and backspace in the universal amount input (same vibe as your original)
+    const globalAmountInput = document.getElementById('global-adjust-amount');
+    globalAmountInput.addEventListener('input', () => {
+        globalAmountInput.value = globalAmountInput.value.replace(/[^0-9]/g, '');
+    });
+
+    renderCharacterSelect();
     renderCharacters();
 </script>
 
